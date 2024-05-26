@@ -35,6 +35,13 @@
         .table th, .table td {
             vertical-align: middle;
         }
+        .table th {
+            width: 50%;
+        }
+        .table td {
+            width: 50%;
+            word-break: break-all;
+        }
     </style>
 </head>
 <body>
@@ -51,8 +58,8 @@
                 <tbody>
                     {% for item in data %}
                         <tr>
-                            <td><strong>{{ item.Campo }}</strong></td>
-                            <td>{{ item.Valor }}</td>
+                            <td><strong>{{ item['Campo'] }}</strong></td>
+                            <td>{{ item['Valor'] }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>

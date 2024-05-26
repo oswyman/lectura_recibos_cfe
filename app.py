@@ -5,9 +5,14 @@ import time
 import os
 import pandas as pd
 from io import BytesIO
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
+
+# Cargar las variables de entorno desde el archivo cfe.env
+load_dotenv('cfe.env')
+openai.api_key = os.getenv('OPENAI_API_KEY')
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'pdf'}
@@ -22,7 +27,6 @@ def process_pdf(file_stream):
         if not text:
             raise ValueError("No se pudo extraer texto del PDF.")
 
-        openai.api_key = "sk-proj-tfuCm7bGgk8JjtkE4YdMT3BlbkFJ7B7A3qJO0dn2PNDLiy8a"
         client = openai.OpenAI(api_key=openai.api_key)
 
         for attempt in range(3):  # Intentar hasta 3 veces

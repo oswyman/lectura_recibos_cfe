@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archivos Subidos</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f3f4f6;
+            font-family: 'Roboto', sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 3rem;
+        }
+        .btn-primary, .btn-secondary {
+            border: none;
+        }
+        .btn-primary:hover, .btn-secondary:hover {
+            background-color: #0056b3;
+        }
+        h1 {
+            font-weight: 700;
+        }
+        .file-list {
+            margin-top: 2rem;
+        }
+        .file-list a {
+            display: block;
+            margin-bottom: 10px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .file-list a:hover {
+            text-decoration: underline;
+        }
+        /* Estilo para el modo oscuro */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #121212;
+                color: #ffffff;
+            }
+            .container {
+                background-color: #1e1e1e;
+                color: #ffffff;
+                box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
+            }
+            .btn-primary, .btn-secondary {
+                background-color: #007bff;
+                color: #ffffff;
+            }
+            .btn-primary:hover, .btn-secondary:hover {
+                background-color: #0056b3;
+                color: #ffffff;
+            }
+            .file-list a {
+                color: #007bff;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Archivos Subidos</h1>
+        <div class="file-list">
+            {% for file in files %}
+                <a href="{{ url_for('download_file', filename=file) }}">{{ file }}</a>
+            {% endfor %}
+        </div>
+        <a href="/" class="btn btn-primary btn-block mt-3">Subir Más Archivos</a>
+    </div>
+</body>
+</html>

@@ -12,7 +12,7 @@
             font-family: 'Roboto', sans-serif;
         }
         .container {
-            max-width: 800px;
+            max-width: 1200px;
             padding: 2rem;
             background-color: #ffffff;
             border-radius: 8px;
@@ -36,43 +36,182 @@
             vertical-align: middle;
         }
         .table th {
-            width: 50%;
+            width: 40%;
         }
         .table td {
-            width: 50%;
-            word-break: break-all;
+            width: 60%;
+            word-break: break-word;
+        }
+        .block-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-top: 2rem;
+        }
+        .row {
+            display: flex;
+            align-items: flex-start;
+        }
+        .col-image {
+            flex: 1;
+            max-width: 40%;
+            margin-right: 20px;
+        }
+        .col-data {
+            flex: 2;
+        }
+        .image-preview {
+            width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 5px;
+            background: #f3f4f6;
+            cursor: pointer;
+        }
+        .image-preview img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 4px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+        }
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        .close:hover,
+        .close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        /* Estilo para el modo oscuro */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #121212;
+                color: #ffffff;
+            }
+            .container {
+                background-color: #1e1e1e;
+                color: #ffffff;
+                box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
+            }
+            .table {
+                color: #ffffff;
+            }
+            .btn-primary, .btn-secondary {
+                background-color: #007bff;
+                color: #ffffff;
+            }
+            .btn-primary:hover, .btn-secondary:hover {
+                background-color: #0056b3;
+                color: #ffffff;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container mt-5">
         <h1 class="text-center">Datos Extraídos</h1>
-        <div class="table-container">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Campo</th>
-                        <th>Valor</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in data %}
-                        <tr>
-                            <td><strong>{{ item['Campo'] }}</strong></td>
-                            <td>{{ item['Valor'] }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+        {% for file_data in data %}
+            <div class="block-title">{{ file_data.data.period }} ({{ file_data.filename }})</div>
+            <div class="row mt-4">
+                <div class="col-image">
+                    <div class="image-preview" onclick="openModal('{{ file_data.image_paths | join(',') }}')">
+                        {% for image_path in file_data.image_paths %}
+                            <img src="{{ url_for('static', filename='images/' ~ image_path.split('/')[-1]) }}" alt="PDF Preview">
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-data">
+                    <div class="table-container">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Campo</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in file_data.data.data %}
+                                    <tr>
+                                        <td><strong>{{ item['Campo'] }}</strong></td>
+                                        <td>{{ item['Valor'] }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
         <div class="download-buttons mt-3">
-            <a href="/download/csv" class="btn btn-secondary">Descargar CSV</a>
-            <a href="/download/xlsx" class="btn btn-secondary">Descargar XLSX</a>
+            <a href="/files" class="btn btn-secondary">Revisar y Descargar PDFs</a>
         </div>
         <a href="/" class="btn btn-primary btn-block mt-3">Subir Otro PDF</a>
     </div>
+    
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="img01">
+    </div>
+    
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function openModal(imagePaths) {
+            var modal = document.getElementById("myModal");
+            var modalImg = document.getElementById("img01");
+            var images = imagePaths.split(',');
+
+            // Display the first image in the modal
+            modalImg.src = "{{ url_for('static', filename='images/') }}" + images[0].split('/').pop();
+            modal.style.display = "block";
+
+            // Add navigation if there are multiple images
+            if (images.length > 1) {
+                var currentImageIndex = 0;
+
+                document.addEventListener('keydown', function(event) {
+                    if (event.key === 'ArrowRight') {
+                        currentImageIndex = (currentImageIndex + 1) % images.length;
+                        modalImg.src = "{{ url_for('static', filename='images/') }}" + images[currentImageIndex].split('/').pop();
+                    } else if (event.key === 'ArrowLeft') {
+                        currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+                        modalImg.src = "{{ url_for('static', filename='images/') }}" + images[currentImageIndex].split('/').pop();
+                    }
+                });
+            }
+        }
+
+        function closeModal() {
+            var modal = document.getElementById("myModal");
+            modal.style.display = "none";
+        }
+    </script>
 </body>
 </html>

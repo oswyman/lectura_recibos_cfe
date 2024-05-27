@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cargar Archivos</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f3f4f6;
+            font-family: 'Roboto', sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 3rem;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        h1 {
+            font-weight: 700;
+        }
+        .alert {
+            margin-top: 1rem;
+        }
+        .file-input-container {
+            border: 2px dashed #007bff;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+        }
+        .file-input-container.dragover {
+            background-color: #e9ecef;
+        }
+        .progress-text {
+            display: none;
+            font-weight: 700;
+            margin-top: 1rem;
+        }
+        .loading-text {
+            display: none;
+            font-weight: 700;
+            margin-top: 1rem;
+            animation: blink 1s linear infinite;
+        }
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        /* Estilo para el modo oscuro */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #121212;
+                color: #ffffff;
+            }
+            .container {
+                background-color: #1e1e1e;
+                color: #ffffff;
+                box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
+            }
+            .file-input-container {
+                border-color: #007bff;
+            }
+            .file-input-container.dragover {
+                background-color: #333333;
+            }
+            .btn-primary {
+                background-color: #007bff;
+                color: #ffffff;
+            }
+            .btn-primary:hover {
+                background-color: #0056b3;
+                color: #ffffff;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Carga tus archivos</h1>
+        <form id="uploadForm" action="/upload" method="post" enctype="multipart/form-data" class="mt-4">
+            <div class="file-input-container" id="fileInputContainer">
+                <p>Arrastra y suelta tus archivos aquí o haz clic para seleccionarlos</p>
+                <input type="file" class="form-control-file" id="file" name="files" multiple accept=".pdf" style="display: none;" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block mt-3">Subir</button>
+        </form>
+        <div class="loading-text" id="loadingText">Cargando...</div>
+    </div>
+    <script>
+        const fileInputContainer = document.getElementById('fileInputContainer');
+        const fileInput = document.getElementById('file');
+        const uploadForm = document.getElementById('uploadForm');
+        const loadingText = document.getElementById('loadingText');
+
+        fileInputContainer.addEventListener('click', () => fileInput.click());
+
+        fileInputContainer.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            fileInputContainer.classList.add('dragover');
+        });
+
+        fileInputContainer.addEventListener('dragleave', () => {
+            fileInputContainer.classList.remove('dragover');
+        });
+
+        fileInputContainer.addEventListener('drop', (event) => {
+            event.preventDefault();
+            fileInput.files = event.dataTransfer.files;
+            fileInputContainer.classList.remove('dragover');
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                fileInputContainer.querySelector('p').textContent = `${fileInput.files.length} archivos seleccionados`;
+            } else {
+                fileInputContainer.querySelector('p').textContent = `Arrastra y suelta tus archivos aquí o haz clic para seleccionarlos`;
+            }
+        });
+
+        uploadForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const formData = new FormData(uploadForm);
+            const xhr = new XMLHttpRequest();
+
+            xhr.open('POST', '/upload', true);
+
+            xhr.upload.addEventListener('progress', (e) => {
+                if (e.lengthComputable) {
+                    loadingText.style.display = 'block';
+                }
+            });
+
+            xhr.addEventListener('load', () => {
+                if (xhr.status === 200) {
+                    window.location.href = '/result';
+                } else {
+                    alert('Error al subir los archivos');
+                }
+            });
+
+            xhr.send(formData);
+        });
+    </script>
+</body>
+</html>
